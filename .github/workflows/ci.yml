@@ -1,31 +1,63 @@
 name: CI
 
 on:
-    push:
-    pull_request:
+  push:
+    branches: [ "main", "development" ]
+  pull_request:
+    branches: [ "main", "production" ]
 
 jobs:
-    build:
-        name: Docker build
-        runs-on: ubuntu-latest
-        steps:
-            - name: Checkout
-              uses: actions/checkout@v3
-            - name: Pull images
-              run: docker compose pull
-            - name: Start services
-              run: docker compose up --build -d
-            - name: Wait for services
-              run: |
-                  while status="$(docker inspect --format="{{if .Config.Healthcheck}}{{print .State.Health.Status}}{{end}}" "$(docker compose ps -q php)")"; do
-                    case $status in
-                      starting) sleep 1;;
-                      healthy) exit 0;;
-                      unhealthy) exit 1;;
-                    esac
-                  done
-                  exit 1
-            - name: Check HTTP reachability
-              run: curl http://localhost
-            - name: Check HTTPS reachability
-              run: curl -k https://localhost
+
+  coding-standards:
+    name: Coding Standards and checks
+    runs-on: ubuntu-22.04
+    
+    steps:
+      - name: Setup PHP, extensions and composer with shivammathur/setup-php
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+          extensions: mbstring, xml, ctype, iconv, intl, pdo, pdo_mysql, dom, filter, gd, iconv, json
+
+      - name: Check PHP Version
+        run: php -v
+      
+      # —— Setup Github actions 🐙 —————————————————————————————————————————————
+      # https://github.com/actions/checkout (official)
+      - name: Checkout
+        uses: actions/checkout@v3
+      
+      # —— Composer   —————————————————————————————————————————————————————————
+      - name: Get composer cache directory
+        id: composer-cache
+        run: echo "::set-output name=dir::$(composer config cache-files-dir)"
+
+      - name: Cache composer dependencies
+        uses: actions/cache@v3.2.2
+        with:
+          # A list of files, directories, and wildcard patterns to cache and restore
+          path: ${{ steps.composer-cache.outputs.dir }}
+          # An explicit key for restoring and saving the cache
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: ${{ runner.os }}-composer-
+
+      - name: Validate composer.json and composer.lock
+        run: composer validate
+
+      - name: Install Composer dependencies
+        run: composer install --prefer-dist --no-progress --no-interaction
+        
+        #      - name: Install Dependencies
+        #        run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+      
+      # —— Symfony   ——————————————————————————————————————————————————————————
+      # We need the dev cache because the PHPStan Symfony plugin requires it.
+      - name: Symfony cache warmup
+        run: bin/console cache:warmup --env=dev
+
+      - name: Install PHPUnit
+        run: vendor/bin/phpunit --version
+
+      ## —— Coding standards   ————————————————————————————————————————————————
+#      - name: Coding standards checks (php_codesniffer + PHPStan)
+##        run: make cs

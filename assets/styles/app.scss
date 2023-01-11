@@ -1,0 +1,10 @@
+// the ~ allows you to reference things in node_modules
+@import "~bootswatch/dist/lumen/variables";
+@import "~bootstrap/scss/bootstrap";
+@import "~bootswatch/dist/lumen/bootswatch";
+
+body {
+    background-color: lightgray;
+}
+
+$primary: darken(#428bca, 20%);
