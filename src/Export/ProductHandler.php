@@ -18,7 +18,6 @@ class ProductHandler implements ExportHandlerInterface
 
     public function doExport(): string
     {
-//        dump(get_class($this));
         $products = $this->repository->findAll();
         $productsCSV = "";
         foreach ($products as $product) {
