@@ -4,14 +4,14 @@
 
 {% block body %}
     <h1>Nos produits phares</h1>
-    <div class="row">
-{#        {% for product in products %}#}
-{#            <div class="col">#}
-{#                <div class="card-group">#}
-{#                    {% include "product/_product_card.html.twig" %}#}
-{#                </div>#}
-{#            </div>#}
-{#        {% endfor %}#}
+    <div class="row pt-3">
+        {% for product in products %}
+            <div class="col">
+                <div class="card-group">
+                    {% include "product/_product_card.html.twig" %}
+                </div>
+            </div>
+        {% endfor %}
     </div>
     <hr>
     <h2>Un service irreprochable</h2>
