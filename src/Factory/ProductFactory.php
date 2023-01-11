@@ -69,7 +69,7 @@ final class ProductFactory extends ModelFactory
             'name' => self::faker()->words(3, true) ,
             'price' => self::faker()->randomNumber(5),
             'shortDescription' => self::faker()->paragraph(),
-            'mainPicture' => 'https://picsum.photos/200'
+            'mainPicture' => "https://picsum.photos/200?random=" . mt_rand(1, 50)
         ];
     }
 
