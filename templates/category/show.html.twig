@@ -1,0 +1,20 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Categorie: {{ slug }}{% endblock %}
+
+{% block body %}
+    <ol class="breadcrumb rounded-pill">
+        <li class="breadcrumb-item"><a href="{{ path('home_index')}}">Home</a></li>
+        <li class="breadcrumb-item">{{ category.name }}</li>
+    </ol>
+    <h1>{{ category.name }}</h1>
+    <div class="row">
+        {% for product in category.products %}
+            <div class="col-3">
+                <div class="card-group">
+                    {% include "product/_product_card.html.twig" %}
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}
